@@ -1,4 +1,5 @@
 import Head from 'next/head';
+import { type PropsWithChildren } from 'react';
 
 const site = {
   title: 'React Native Directory',
@@ -7,18 +8,24 @@ const site = {
 
 const BASE_OG_URL = 'https://og.expo.dev/?theme=rnd';
 
-type PageMetaProps = {
+type PageMetaProps = PropsWithChildren<{
   title?: string;
   description?: string;
   path?: string;
-  query?: string | string[];
-};
+  searchQuery?: string | string[];
+}>;
 
-const PageMeta = ({ title, query, path, description = site.description }: PageMetaProps) => {
+export default function PageMeta({
+  title,
+  searchQuery,
+  path,
+  children,
+  description = site.description,
+}: PageMetaProps) {
   const pageTitle = `${title ? title + ' • ' : ''}${site.title}`;
-  const parsedQuery = Array.isArray(query) ? query[0] : query;
-  const finalDescription = parsedQuery
-    ? `Search results for keyword: '${parsedQuery}'`
+  const parsedSearchQuery = Array.isArray(searchQuery) ? searchQuery[0] : searchQuery;
+  const finalDescription = parsedSearchQuery
+    ? `Search results for keyword: '${parsedSearchQuery}'`
     : description;
 
   const socialImage = `${BASE_OG_URL}&title=${encodeURIComponent(pageTitle)}&description=${encodeURIComponent(finalDescription)}`;
@@ -30,9 +37,6 @@ const PageMeta = ({ title, query, path, description = site.description }: PageMe
 
       <meta property="og:title" content={pageTitle} />
       <meta property="og:description" content={finalDescription} />
-      <meta property="og:site_name" content={site.title} />
-      <meta property="og:type" content="website" />
-      <meta property="og:url" content="https://reactnative.directory" />
       <meta property="og:image" content={socialImage} />
       <meta property="og:image:width" content="1280" />
       <meta property="og:image:height" content="669" />
@@ -42,12 +46,9 @@ const PageMeta = ({ title, query, path, description = site.description }: PageMe
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:image" content={socialImage} />
 
-      <meta name="application-name" content={site.title} />
-      <meta name="msapplication-TileColor" content="#20232a" />
-
       <link rel="canonical" href={`https://reactnative.directory${path ? `/${path}` : ''}`} />
+
+      {children}
     </Head>
   );
-};
-
-export default PageMeta;
+}

@@ -1,8 +1,9 @@
-import { Cheerio, load } from 'cheerio';
-import fetch from 'cross-fetch';
+import { fetch } from 'bun';
+import { type Cheerio, load } from 'cheerio';
+
+import { type LibraryType } from '~/types';
 
 import { sleep } from './helpers';
-import { Library } from '../types';
 
 function isLikelyUsefulImage(image: Cheerio<any>, imageSrc: string, githubUrl: string) {
   const parentHref = image.parent().attr('href');
@@ -31,7 +32,7 @@ async function scrapeImagesAsync(githubUrl: string) {
     for (let i = 0; i <= images.length - 1; i++) {
       const image = $(images[i]);
       const imageSrc = image.attr('data-canonical-src') ?? image.attr('src');
-      if (isLikelyUsefulImage(image, imageSrc, githubUrl)) {
+      if (imageSrc && isLikelyUsefulImage(image, imageSrc, githubUrl)) {
         const finalURL = imageSrc.startsWith('/') ? `https://github.com${imageSrc}` : imageSrc;
         usefulImages.push(finalURL);
       }
@@ -42,7 +43,7 @@ async function scrapeImagesAsync(githubUrl: string) {
   }
 }
 
-async function fetchReadmeImages(data: Library, attemptsCount = 0) {
+async function fetchReadmeImages(data: LibraryType, attemptsCount = 0) {
   /**
    * @DEV
    * if images been set, or max attempt count has been reached, we skip scraping images
